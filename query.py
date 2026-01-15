@@ -9,28 +9,51 @@ embeddings = HuggingFaceEmbeddings(
 )
 
 db = Chroma(
-    persist_directory="fmtsDB",
+    persist_directory="gojiraDB",
     embedding_function=embeddings
 )
 
 # 2. Retrieve relevant context
-query = "Which album was released in 2003?"
-docs = db.similarity_search(query, k=12)
+query = "How many songs are in the album The link?"
+docs = db.similarity_search(
+    query,
+    k=10,
+    filter={"$and": [{"album": "The Link"}, {"section": "tracklist"}]}
+)
 
 context = "\n\n".join(doc.page_content for doc in docs)
 
 # 3. Build prompt
 prompt = f"""
-You are an assistant answering questions only on the given context.
+You are an AI assistant answering questions using a provided knowledge base.
 
-Context:
+INSTRUCTIONS:
+1. Carefully analyze the QUESTION to determine what information is being requested.
+2. Use ONLY the provided CONTEXT to answer.
+3. If the question requires counting:
+   - Identify an explicit list of items in the context
+   - Count ONLY items that appear in that list
+   - Do NOT use summary statements, inferred totals, or descriptive claims
+4. If multiple sections mention items, use ONLY the section that explicitly enumerates them.
+5. Do NOT guess or use outside knowledge.
+6. If an explicit list is not present, clearly say so.
+7. If the list is incomplete or ambiguous, do NOT provide a final count.
+
+
+CONTEXT:
 {context}
 
-Question:
+QUESTION:
 {query}
 
-Answer in detail and factually.
+ANSWER:
+- First, explain which section you used
+- Then list the items found
+- Finally, provide the count
+
 """
+
+
 
 # 4. Local LLM
 llm = OllamaLLM(model="llama3")

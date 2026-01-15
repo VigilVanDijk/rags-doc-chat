@@ -1,9 +1,0 @@
-RAG stands for Retrieval Augmented Generation.
-
-RAG systems first retrieve relevant documents from a knowledge base.
-Then they inject that context into a language model to generate accurate answers.
-
-RAG is commonly used for:
-- Chat with documents
-- Internal knowledge bases
-- AI customer support

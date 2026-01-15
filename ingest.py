@@ -1,31 +1,58 @@
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
 
-# 1. Load document
-loader = TextLoader("data/linkInfo.txt")
-documents = loader.load()
+def ingest_album(
+    file_path: str,
+    artist: str,
+    album: str,
+    persist_directory: str
+):
+    # 1. Load document
+    loader = TextLoader(file_path)
+    documents = loader.load()
 
-# 2. Split into chunks
-splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
-    chunk_overlap=100
-)
-chunks = splitter.split_documents(documents)
+    # 2. Split into chunks
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=100
+    )
+    chunks = splitter.split_documents(documents)
 
-# 3. Local embeddings
-embeddings = HuggingFaceEmbeddings(
-    model_name="all-MiniLM-L6-v2"
-)
+    # 3. Attach metadata
+    for chunk in chunks:
+        chunk.metadata.update({
+            "artist": artist,
+            "album": album,
+            "source": file_path
+        })
 
-# 4. Load existing Chroma database
-db = Chroma(
-    persist_directory="fmtsDB",
-    embedding_function=embeddings
-)
+        # Optional: detect section heuristically
+        if "TRACK-BY-TRACK" in chunk.page_content.upper():
+            chunk.metadata["section"] = "tracklist"
 
-# 5. Add new documents to existing database
-db.add_documents(chunks)
+    # 4. Embeddings
+    embeddings = HuggingFaceEmbeddings(
+        model_name="all-MiniLM-L6-v2"
+    )
 
-print("✅ New documents added to fmtsDB successfully")
+    # 5. Load existing DB
+    db = Chroma(
+        persist_directory=persist_directory,
+        embedding_function=embeddings
+    )
+
+    # 6. Append documents
+    db.add_documents(chunks)
+    db.persist()
+
+    print(f"✅ Ingested album: {album}")
+
+if __name__ == "__main__":
+    ingest_album(
+        file_path="data/linkInfo.txt",
+        artist="Gojira",
+        album="The Link",
+        persist_directory="musicDB"
+    )
