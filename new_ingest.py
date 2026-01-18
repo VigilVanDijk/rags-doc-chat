@@ -14,6 +14,11 @@ db = Chroma(
     embedding_function=embeddings
 )
 
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,
+    chunk_overlap=100
+)
+
 # ---- 1. TRACKLIST (NO SPLITTING) ----
 tracklist_loader = TextLoader("data/theLink/tracklist.txt")
 tracklist_docs = tracklist_loader.load()
@@ -29,21 +34,14 @@ tracklist_doc = Document(
 
 db.add_documents([tracklist_doc])
 
-# ---- 2. PROSE (SPLIT) ----
-prose_loader = TextLoader("data/theLink/overview.txt")
-prose_docs = prose_loader.load()
+# ---- 2. OVERVIEW (SPLIT) ----
+overview_loader = TextLoader("data/theLink/overview.txt")
+overview_docs = overview_loader.load()
+overview_chunks = splitter.split_documents(overview_docs)
 
-splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
-    chunk_overlap=100
-)
-
-prose_chunks = splitter.split_documents(prose_docs)
-
-# Safe metadata assignment
-prose_docs_with_meta = []
-for doc in prose_chunks:
-    prose_docs_with_meta.append(
+overview_docs_with_meta = []
+for doc in overview_chunks:
+    overview_docs_with_meta.append(
         Document(
             page_content=doc.page_content,
             metadata={
@@ -54,45 +52,117 @@ for doc in prose_chunks:
         )
     )
 
-db.add_documents(prose_docs_with_meta)
+db.add_documents(overview_docs_with_meta)
 
-# ---- 3. ANALYSIS (SPLIT) ----
-analysis_loader = TextLoader("data/theLink/analysis.txt")
-analysis_docs = analysis_loader.load()
-analysis_chunks = splitter.split_documents(analysis_docs)
+# ---- 3. MUSICAL CHARACTERISTICS (SPLIT) ----
+music_loader = TextLoader("data/theLink/musical_characteristics.txt")
+music_docs = music_loader.load()
+music_chunks = splitter.split_documents(music_docs)
 
-analysis_docs_with_meta = []
-for doc in analysis_chunks:
-    analysis_docs_with_meta.append(
+music_docs_with_meta = []
+for doc in music_chunks:
+    music_docs_with_meta.append(
         Document(
             page_content=doc.page_content,
             metadata={
                 "album": "The Link",
-                "section": "analysis",
+                "section": "musical_characteristics",
                 "type": "prose"
             }
         )
     )
 
-db.add_documents(analysis_docs_with_meta)
+db.add_documents(music_docs_with_meta)
 
-# ---- 4. METADATA/FACTS (NO SPLITTING) ----
-meta_loader = TextLoader("data/theLink/metadata.txt")
-meta_docs = meta_loader.load()
+# ---- 4. LYRICAL THEMES & CONCEPTS (SPLIT) ----
+lyrics_loader = TextLoader("data/theLink/lyrical_themes.txt")
+lyrics_docs = lyrics_loader.load()
+lyrics_chunks = splitter.split_documents(lyrics_docs)
 
-meta_doc = Document(
-    page_content=meta_docs[0].page_content,
-    metadata={
-        "album": "The Link",
-        "section": "metadata",
-        "type": "facts"
-    }
-)
+lyrics_docs_with_meta = []
+for doc in lyrics_chunks:
+    lyrics_docs_with_meta.append(
+        Document(
+            page_content=doc.page_content,
+            metadata={
+                "album": "The Link",
+                "section": "lyrics_themes",
+                "type": "prose"
+            }
+        )
+    )
 
-db.add_documents([meta_doc])
+db.add_documents(lyrics_docs_with_meta)
 
-# ---- 5. Persist ----
-# Note: With langchain_chroma, persistence is automatic when persist_directory is set
-# No need to call persist() - changes are saved automatically
+# ---- 5. CRITICAL RECEPTION & MUSICAL INFLUENCE (SPLIT) ----
+reception_loader = TextLoader("data/theLink/critical_reception.txt")
+reception_docs = reception_loader.load()
+reception_chunks = splitter.split_documents(reception_docs)
 
-print("✅ Ingestion complete for tracklist, overview, analysis, and metadata")
+reception_docs_with_meta = []
+for doc in reception_chunks:
+    reception_docs_with_meta.append(
+        Document(
+            page_content=doc.page_content,
+            metadata={
+                "album": "The Link",
+                "section": "reception_influence",
+                "type": "prose"
+            }
+        )
+    )
+
+db.add_documents(reception_docs_with_meta)
+
+# ---- 6. TECHNICAL ANALYSIS (SPLIT) ----
+technical_loader = TextLoader("data/theLink/technical_analysis.txt")
+technical_docs = technical_loader.load()
+technical_chunks = splitter.split_documents(technical_docs)
+
+technical_docs_with_meta = []
+for doc in technical_chunks:
+    technical_docs_with_meta.append(
+        Document(
+            page_content=doc.page_content,
+            metadata={
+                "album": "The Link",
+                "section": "technical_analysis",
+                "type": "prose"
+            }
+        )
+    )
+
+db.add_documents(technical_docs_with_meta)
+
+# ---- 7. CULTURAL IMPACT, RECORDING, LIVE HISTORY, COMMERCIAL, PHILOSOPHY, CONCLUSION (SPLIT) ----
+final_sections = [
+    ("cultural_impact.txt", "cultural_context"),
+    ("recording_production.txt", "recording_production"),
+    ("live_history.txt", "live_history"),
+    ("commercial_performances.txt", "commercial_performance"),
+    ("philosophy.txt", "philosophy"),
+    ("conclusion.txt", "conclusion"),
+    ("artistic_achievement.txt", "artistic_achievement"),
+    ("basic_info.txt", "basic_info")
+]
+
+for file_name, section_name in final_sections:
+    loader = TextLoader(f"data/theLink/{file_name}")
+    docs = loader.load()
+    chunks = splitter.split_documents(docs)
+
+    docs_with_meta = []
+    for doc in chunks:
+        docs_with_meta.append(
+            Document(
+                page_content=doc.page_content,
+                metadata={
+                    "album": "The Link",
+                    "section": section_name,
+                    "type": "prose"
+                }
+            )
+        )
+    db.add_documents(docs_with_meta)
+
+print("✅ Ingestion complete for The Link")

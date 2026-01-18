@@ -17,7 +17,7 @@ query = "Compare the album technical analysis."
 docs_link = db.similarity_search(
     query,
     k=5,
-    filter={"$and": [{"album": "The Link"}, {"section": "analysis"}]}
+    filter={"$and": [{"album": "The Link"}, {"section": "technical_analysis"}]}
 )
 
 # Album 2 - From Mars to Sirius
@@ -49,7 +49,7 @@ CONTEXT:
 {context}
 
 QUESTION:
-Compare the album technical analysis of the two albums.
+Compare the album technical analysis of the two albums, answer in detail with technical analysis of the two albums.
 
 ANSWER:
 """
