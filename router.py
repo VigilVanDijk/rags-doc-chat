@@ -56,7 +56,7 @@ class QueryRouter:
         "basic_info": ["release", "date", "label", "genre", "length", "band members", "producer", "when was", "basic"]
     }
     
-    def __init__(self, llm_model: str = "llama3.2:7b"):
+    def __init__(self, llm_model: str = "mistral"):
         """Initialize router with LLM"""
         # Support environment variable for Ollama URL (useful for Docker)
         ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
