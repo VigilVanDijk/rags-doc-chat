@@ -32,7 +32,8 @@ app.add_middleware(
 )
 
 # Initialize query handler (singleton - initialized once)
-handler = QueryHandler(llm_model="llama3")
+# Using llama3.2:3b (~2GB) - fits in available memory after system overhead
+handler = QueryHandler(llm_model="llama3.2:3b")
 
 
 # Request/Response models
