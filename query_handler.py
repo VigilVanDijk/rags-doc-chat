@@ -12,7 +12,7 @@ from router import QueryRouter, create_db_connection
 class QueryHandler:
     """Handles query execution with automatic routing"""
     
-    def __init__(self, llm_model: str = "llama3.2:3b"):
+    def __init__(self, llm_model: str = "llama3.2:7b"):
         """Initialize handler with router and LLM"""
         self.router = QueryRouter(llm_model=llm_model)
         self.db = create_db_connection()
