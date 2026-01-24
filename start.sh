@@ -30,10 +30,16 @@ for i in {1..30}; do
   sleep 2
 done
 
-# Pull llama3.2:3b model (~2GB) - fits in available memory after system overhead
-# Even with 8GB total, system/OS/Python/Ollama use ~5GB, leaving ~3GB for model
-echo "Ensuring llama3.2:3b model is available..."
-ollama pull llama3.2:3b || echo "Warning: Failed to pull llama3.2:3b, continuing anyway..."
+# Try llama3.2:7b first (better quality, ~4GB) - if it fails, falls back to smaller
+# If this fails due to memory, try: mistral (better quality, ~4GB) or phi3:medium (~2.7GB)
+echo "Ensuring llama3.2:7b model is available (better quality than 3b)..."
+ollama pull llama3.2:7b || {
+  echo "llama3.2:7b failed, trying mistral (alternative good model)..."
+  ollama pull mistral || {
+    echo "mistral failed, falling back to phi3:medium..."
+    ollama pull phi3:medium || echo "Warning: All model pulls failed"
+  }
+}
 
 # Start the API server (this will be the main process)
 echo "Starting FastAPI server..."
