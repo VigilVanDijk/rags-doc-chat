@@ -30,13 +30,13 @@ for i in {1..30}; do
   sleep 2
 done
 
-# Try llama3.2:7b first (better quality, ~4GB) - if it fails, falls back to smaller
-# If this fails due to memory, try: mistral (better quality, ~4GB) or phi3:medium (~2.7GB)
-echo "Ensuring llama3.2:7b model is available (better quality than 3b)..."
-ollama pull llama3.2:7b || {
-  echo "llama3.2:7b failed, trying mistral (alternative good model)..."
-  ollama pull mistral || {
-    echo "mistral failed, falling back to phi3:medium..."
+# Pull mistral model (~4GB, good quality, actually exists)
+# llama3 is too big (4.6GB), llama3.2:3b is too stupid, llama3.2:7b doesn't exist
+echo "Ensuring mistral model is available..."
+ollama pull mistral || {
+  echo "mistral failed, trying llama3.2:3b as fallback..."
+  ollama pull llama3.2:3b || {
+    echo "llama3.2:3b failed, falling back to phi3:medium..."
     ollama pull phi3:medium || echo "Warning: All model pulls failed"
   }
 }
