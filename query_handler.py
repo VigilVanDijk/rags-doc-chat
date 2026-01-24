@@ -2,6 +2,7 @@
 Unified Query Handler
 Handles both single and comparison queries using the router
 """
+import os
 from typing import Dict, List
 from langchain_ollama import OllamaLLM
 from langchain_chroma import Chroma
@@ -15,7 +16,9 @@ class QueryHandler:
         """Initialize handler with router and LLM"""
         self.router = QueryRouter(llm_model=llm_model)
         self.db = create_db_connection()
-        self.llm = OllamaLLM(model=llm_model)
+        # Support environment variable for Ollama URL (useful for Docker)
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        self.llm = OllamaLLM(model=llm_model, base_url=ollama_base_url)
     
     def query(self, query: str, k: int = 10, verbose: bool = True) -> str:
         """

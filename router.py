@@ -3,6 +3,7 @@ Query Router for RAG System
 Automatically routes queries to appropriate sections and albums
 """
 import json
+import os
 import re
 from typing import Dict, List, Optional
 from langchain_ollama import OllamaLLM
@@ -57,7 +58,9 @@ class QueryRouter:
     
     def __init__(self, llm_model: str = "llama3"):
         """Initialize router with LLM"""
-        self.llm = OllamaLLM(model=llm_model)
+        # Support environment variable for Ollama URL (useful for Docker)
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        self.llm = OllamaLLM(model=llm_model, base_url=ollama_base_url)
         self.confidence_threshold = 0.7
     
     def route_query(self, query: str) -> Dict:
