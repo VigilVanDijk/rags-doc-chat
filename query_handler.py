@@ -4,7 +4,7 @@ Handles both single and comparison queries using the router
 """
 import os
 from typing import Dict, List
-from langchain_ollama import OllamaLLM
+from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
 from router import QueryRouter, create_db_connection
 
@@ -12,13 +12,18 @@ from router import QueryRouter, create_db_connection
 class QueryHandler:
     """Handles query execution with automatic routing"""
     
-    def __init__(self, llm_model: str = "mistral"):
-        """Initialize handler with router and LLM"""
+    def __init__(self, llm_model: str = "llama-3.1-70b-versatile"):
+        """Initialize handler with router and Groq LLM (hosted, no memory issues)"""
         self.router = QueryRouter(llm_model=llm_model)
         self.db = create_db_connection()
-        # Support environment variable for Ollama URL (useful for Docker)
-        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        self.llm = OllamaLLM(model=llm_model, base_url=ollama_base_url)
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        if not groq_api_key:
+            raise ValueError("GROQ_API_KEY environment variable is required. Get one at https://console.groq.com/")
+        self.llm = ChatGroq(
+            model=llm_model,
+            groq_api_key=groq_api_key,
+            temperature=0.3  # Slightly higher for more natural answers
+        )
     
     def query(self, query: str, k: int = 10, verbose: bool = True) -> str:
         """
@@ -147,7 +152,8 @@ ANSWER:
 Provide a confident, detailed comparison using the information from both albums. Present your analysis as clear, factual observations.
 """
 
-        response = self.llm.invoke(prompt)
+        # ChatGroq returns a message object, need to access .content
+        response = self.llm.invoke(prompt).content
         return response
     
     def _generate_single_response(self, query: str, context: List, routing: Dict) -> str:
@@ -178,6 +184,7 @@ ANSWER:
 Provide a clear, confident answer directly addressing the question. State facts from the context as certainties.
 """
 
-        response = self.llm.invoke(prompt)
+        # ChatGroq returns a message object, need to access .content
+        response = self.llm.invoke(prompt).content
         return response
 

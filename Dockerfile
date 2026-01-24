@@ -1,15 +1,5 @@
 FROM python:3.13-slim
 
-# Install system dependencies (including zstd required by Ollama)
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    zstd \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
-
 # Set working directory
 WORKDIR /app
 
@@ -22,12 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Make startup script executable
-RUN chmod +x /app/start.sh
+# Expose port
+EXPOSE 8000
 
-# Expose ports
-EXPOSE 8000 11434
-
-# Use startup script
-CMD ["/app/start.sh"]
+# Start FastAPI directly (no Ollama needed!)
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
 

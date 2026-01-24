@@ -6,7 +6,7 @@ import json
 import os
 import re
 from typing import Dict, List, Optional
-from langchain_ollama import OllamaLLM
+from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
@@ -56,11 +56,16 @@ class QueryRouter:
         "basic_info": ["release", "date", "label", "genre", "length", "band members", "producer", "when was", "basic"]
     }
     
-    def __init__(self, llm_model: str = "mistral"):
-        """Initialize router with LLM"""
-        # Support environment variable for Ollama URL (useful for Docker)
-        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        self.llm = OllamaLLM(model=llm_model, base_url=ollama_base_url)
+    def __init__(self, llm_model: str = "llama-3.1-70b-versatile"):
+        """Initialize router with Groq LLM (hosted, no memory issues)"""
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        if not groq_api_key:
+            raise ValueError("GROQ_API_KEY environment variable is required. Get one at https://console.groq.com/")
+        self.llm = ChatGroq(
+            model=llm_model,
+            groq_api_key=groq_api_key,
+            temperature=0.1  # Lower temperature for more consistent routing
+        )
         self.confidence_threshold = 0.7
     
     def route_query(self, query: str) -> Dict:
@@ -124,7 +129,8 @@ Output ONLY valid JSON in this exact format:
 Be specific with sections. If unsure about section, default to ["overview"]. If comparing, include both albums."""
 
         try:
-            raw_response = self.llm.invoke(prompt).strip()
+            # ChatGroq returns a message object, need to access .content
+            raw_response = self.llm.invoke(prompt).content.strip()
             
             # Clean JSON response (remove markdown code blocks if present)
             response = re.sub(r'```json\n?', '', raw_response)

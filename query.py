@@ -10,7 +10,8 @@ import sys
 from query_handler import QueryHandler
 
 # Initialize query handler (includes router + DB + LLM)
-handler = QueryHandler(llm_model="llama3")
+# Uses Groq hosted LLM (no memory issues)
+handler = QueryHandler()
 
 # Get query from command line or use default
 if len(sys.argv) > 1:

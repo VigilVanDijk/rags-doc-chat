@@ -32,8 +32,8 @@ app.add_middleware(
 )
 
 # Initialize query handler (singleton - initialized once)
-# Using mistral (~4GB, good quality) - llama3 is too big, llama3.2:7b doesn't exist
-handler = QueryHandler(llm_model="mistral")
+# Using Groq hosted LLM (no memory issues, free tier available)
+handler = QueryHandler(llm_model="llama-3.1-70b-versatile")
 
 
 # Request/Response models
