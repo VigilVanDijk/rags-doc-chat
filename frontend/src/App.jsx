@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import QueryInput from './components/QueryInput'
 import AnswerDisplay from './components/AnswerDisplay'
+import { queryAPI } from './services/api'
 
 function App() {
   const [answer, setAnswer] = useState(null)
@@ -14,22 +15,20 @@ function App() {
     setError(null)
     setAnswer(null)
 
-    // TODO: Replace with actual API call when backend is ready
-    // For now, using placeholder
-    setTimeout(() => {
+    try {
+      const response = await queryAPI(query, 10)
       setAnswer({
-        query: query,
-        answer: `This is a placeholder response for: "${query}". The backend API will be connected soon!`,
-        routing: {
-          type: "single",
-          sections: ["overview"],
-          albums: ["The Link"],
-          confidence: 0.9
-        }
+        query: response.query,
+        answer: response.answer,
+        routing: response.routing
       })
       setQueryHistory(prev => [...prev, query])
+    } catch (err) {
+      setError(err.message || 'Failed to get response from server. Make sure the backend is running on http://localhost:8000')
+      console.error('Query error:', err)
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -59,12 +58,8 @@ function App() {
           </div>
         )}
 
-        {answer ? (
+        {answer && (
           <AnswerDisplay answer={answer} />
-        ) : (
-          <div className="no-answer">
-            <p>No answer found. Please try a different query.</p>
-          </div>
         )}
 
         {queryHistory.length > 0 && (
