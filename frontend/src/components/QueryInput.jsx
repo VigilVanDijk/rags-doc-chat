@@ -22,12 +22,16 @@ function QueryInput({ onQuery, loading, placeholder }) {
           disabled={loading}
           className="query-input"
         />
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading || !query.trim()}
           className="submit-button"
         >
-          {loading ? '⏳' : '🚀'}
+          <img
+            src="https://cdn.jsdelivr.net/gh/VigilVanDijk/vvd-assets@rags-doc-chat/gojira_album_arts/assets/whale_loader-1.png"
+            alt="Submit"
+            className={loading ? 'submit-whale spinning' : 'submit-whale'}
+          />
         </button>
       </div>
     </form>
