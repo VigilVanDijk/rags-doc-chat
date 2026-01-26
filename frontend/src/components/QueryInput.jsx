@@ -1,13 +1,9 @@
-import { useState } from 'react'
-
-function QueryInput({ onQuery, loading, placeholder }) {
-  const [query, setQuery] = useState('')
-
+function QueryInput({ onQuery, loading, query, setQuery, placeholder }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (query.trim() && !loading) {
       onQuery(query.trim())
-      setQuery('')
+      // Don't clear here - let parent component clear after answer is received
     }
   }
 

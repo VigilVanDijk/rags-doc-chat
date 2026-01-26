@@ -41,20 +41,25 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [queryHistory, setQueryHistory] = useState([])
+  const [verboseToggle, setVerboseToggle] = useState(false)
+  const [query, setQuery] = useState('')
+  const vvd = `https://github.com/VigilVanDijk`;
+  const vvd_assets = `https://github.com/VigilVanDijk/vvd-assets`
 
-  const handleQuery = async (query) => {
+  const handleQuery = async (queryText) => {
     setLoading(true)
     setError(null)
     setAnswer(null)
 
     try {
-      const response = await queryAPI(query, 10)
+      const response = await queryAPI(queryText, 10)
       setAnswer({
         query: response.query,
         answer: response.answer,
         routing: response.routing
       })
-      setQueryHistory(prev => [...prev, query])
+      setQueryHistory(prev => [...prev, queryText])
+      setQuery('') // Clear input only after answer is received
     } catch (err) {
       setError(err.message || 'Failed to get response from server. Make sure the backend is running on http://localhost:8000')
       console.error('Query error:', err)
@@ -102,8 +107,26 @@ function App() {
         <QueryInput
           onQuery={handleQuery}
           loading={loading}
+          query={query}
+          setQuery={setQuery}
           placeholder="Try: 'How many songs are in The Link?' or 'Compare technical analysis between both albums'"
         />
+
+        <div className="toggle-container">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={verboseToggle}
+              onChange={(e) => setVerboseToggle(e.target.checked)}
+              className="toggle-input"
+            />
+            <span className="toggle-slider"></span>
+            <span className="toggle-text">Verbose</span>
+          </label>
+          <span className={`toggle-hint ${verboseToggle ? 'visible' : 'hidden'}`}>
+            Hover a tag for details
+          </span>
+        </div>
 
         {error && (
           <div className="error-message">
@@ -114,8 +137,8 @@ function App() {
         {loading && (
           <div className="loading">
             <img
-              src="https://cdn.jsdelivr.net/gh/VigilVanDijk/vvd-assets@rags-doc-chat/gojira_album_arts/assets/whale_loader-1.png"
-              alt="Loading whale"
+              src="https://cdn.jsdelivr.net/gh/VigilVanDijk/vvd-assets@rags-doc-chat/gojira_album_arts/assets/gojirafortitudeslipmat.png"
+              alt="Loader"
               className="spinner"
             />
             <p>Searching knowledge base...</p>
@@ -123,7 +146,7 @@ function App() {
         )}
 
         {answer && (
-          <AnswerDisplay answer={answer} />
+          <AnswerDisplay answer={answer} verboseToggle={verboseToggle} />
         )}
 
         {queryHistory.length > 0 && (
@@ -141,7 +164,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>Powered by RAG with automatic query routing</p>
+        <p>Powered by RAG with automatic query routing | <a href={vvd} target="_blank" rel="noopener noreferrer" className="vvd-link">VigilVanDijk</a> | <a href={vvd_assets} target="_blank" rel="noopener noreferrer" className="vvd-link">VigilVanDijk Assets</a></p>
       </footer>
     </div>
   )
