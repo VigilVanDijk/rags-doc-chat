@@ -12,7 +12,7 @@ from router import QueryRouter, create_db_connection
 class QueryHandler:
     """Handles query execution with automatic routing"""
     
-    def __init__(self, llm_model: str = "llama-3.1-70b-versatile"):
+    def __init__(self, llm_model: str = "llama-3.3-70b-versatile"):
         """Initialize handler with router and Groq LLM (hosted, no memory issues)"""
         self.router = QueryRouter(llm_model=llm_model)
         self.db = create_db_connection()

@@ -33,7 +33,7 @@ app.add_middleware(
 
 # Initialize query handler (singleton - initialized once)
 # Using Groq hosted LLM (no memory issues, free tier available)
-handler = QueryHandler(llm_model="llama-3.1-70b-versatile")
+handler = QueryHandler(llm_model="llama-3.3-70b-versatile")
 
 
 # Request/Response models

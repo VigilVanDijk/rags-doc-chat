@@ -56,7 +56,7 @@ class QueryRouter:
         "basic_info": ["release", "date", "label", "genre", "length", "band members", "producer", "when was", "basic"]
     }
     
-    def __init__(self, llm_model: str = "llama-3.1-70b-versatile"):
+    def __init__(self, llm_model: str = "llama-3.3-70b-versatile"):
         """Initialize router with Groq LLM (hosted, no memory issues)"""
         groq_api_key = os.getenv("GROQ_API_KEY")
         if not groq_api_key:
