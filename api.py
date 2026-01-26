@@ -18,10 +18,16 @@ app = FastAPI(
 
 # Configure CORS - allow React frontend to connect
 # Support environment variable for production frontend URL
-cors_origins = os.getenv(
+cors_origins_str = os.getenv(
     "CORS_ORIGINS",
     "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
-).split(",")
+)
+# Split by comma, strip whitespace, and filter out empty strings
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
+
+# Log CORS origins for debugging (don't log in production if sensitive)
+if os.getenv("ENVIRONMENT") != "production":
+    print(f"CORS origins configured: {cors_origins}")
 
 app.add_middleware(
     CORSMiddleware,
