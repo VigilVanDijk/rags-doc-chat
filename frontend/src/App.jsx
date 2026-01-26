@@ -114,7 +114,7 @@ function App() {
         {loading && (
           <div className="loading">
             <img
-              src="https://cdn.jsdelivr.net/gh/VigilVanDijk/vvd-assets@rags-doc-chat/gojira_album_arts/assets/whale_loader-1.jpg"
+              src="https://cdn.jsdelivr.net/gh/VigilVanDijk/vvd-assets@rags-doc-chat/gojira_album_arts/assets/whale_loader-1.png"
               alt="Loading whale"
               className="spinner"
             />
